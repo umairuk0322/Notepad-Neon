@@ -1,0 +1,6 @@
+{
+  "name": "Neon Notepad & To-Do",
+  "description": "Futuristic Neon Notepad and To-Do Manager with rich text editing, customizable themes, pages, trash recovery, and local persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

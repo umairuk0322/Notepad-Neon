@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Stickypad & To-Do // Productivity</title>
+  <meta name="description" content="Futuristic Neon Notepad and To-Do Manager with rich text editing, customizable themes, pages, trash recovery, and local persistence.">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body data-theme="neon-cyan">
+ 
+  <canvas id="cyber-bg-canvas"></canvas>
+
+  <div id="app-container">
+    <!-- ====================================================================
+         SIDEBAR
+         ==================================================================== -->
+    <aside id="sidebar">
+      <!-- Brand Logo / Title -->
+      <div class="sidebar-header" id="sidebar-header">
+        <div class="brand-logo" id="brand-logo">
+          <div class="brand-icon-wrapper" id="brand-icon-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </div>
+          <div class="brand-info">
+            <span class="brand-title">Sticky PAD</span>
+            <span class="brand-subtitle">Advance Sticky Pad</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action: New Note Button -->
+      <div class="sidebar-action-wrap">
+        <button class="btn-new-action" id="btn-new-note" title="Create New Note (Ctrl+N)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>New Note</span>
+          <span class="kbd-shortcut">Ctrl+N</span>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <button class="nav-tab-btn active" id="tab-notes" data-view="notes">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>All Notes</span>
+          </div>
+          <span class="tab-count" id="count-all-notes">0</span>
+        </button>
+
+        <button class="nav-tab-btn" id="tab-todos" data-view="todos">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            <span>To-Do Tasks</span>
+          </div>
+          <span class="tab-count" id="count-todos">0</span>
+        </button>
+
+        <button class="nav-tab-btn" id="tab-favorites" data-view="favorites">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>Favorites</span>
+          </div>
+          <span class="tab-count" id="count-favorites">0</span>
+        </button>
+
+        <button class="nav-tab-btn" id="tab-recent" data-view="recent">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Recently Edited</span>
+          </div>
+        </button>
+
+        <button class="nav-tab-btn" id="tab-trash" data-view="trash">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Trash</span>
+          </div>
+          <span class="tab-count" id="count-trash">0</span>
+        </button>
+
+        <button class="nav-tab-btn" id="tab-settings" data-view="settings">
+          <div class="tab-left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Settings</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- Search & Sort Box in Sidebar -->
+      <div class="sidebar-search-box">
+        <div class="search-input-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" class="sidebar-search-input" id="sidebar-search-input" placeholder="Search notes...">
+          <button class="search-clear-btn" id="search-clear-btn">✕</button>
+        </div>
+        <div class="sidebar-filter-row">
+          <span>Sort By:</span>
+          <select class="filter-select" id="notes-sort-select">
+            <option value="modified-desc">Last Modified</option>
+            <option value="created-desc">Newest First</option>
+            <option value="created-asc">Oldest First</option>
+            <option value="title-asc">Title (A-Z)</option>
+            <option value="title-desc">Title (Z-A)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Notes List Container -->
+      <div class="sidebar-list-container" id="notes-list-container">
+        <!-- Dynamically rendered note cards -->
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="storage-status">
+          <div class="storage-meter">
+            <div class="storage-meter-fill" id="storage-meter-fill"></div>
+          </div>
+          <span id="storage-label">Local Save</span>
+        </div>
+        <span id="notes-total-label">0 Notes</span>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         MAIN CONTENT AREA
+         ==================================================================== -->
+    <main id="main-content">
+      <!-- Top Navigation Bar -->
+      <header class="top-navbar">
+        <div class="top-navbar-left">
+          <button class="mobile-nav-toggle" id="mobile-menu-btn" title="Toggle Navigation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="view-breadcrumb">
+            <span id="breadcrumb-category">Notes</span>
+            <span>/</span>
+            <span class="breadcrumb-active" id="breadcrumb-current-title">Untitled Note</span>
+          </div>
+        </div>
+
+        <div class="top-navbar-right">
+          <button class="nav-icon-btn" id="btn-global-search" title="Global Quick Search (Ctrl+F)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+          <button class="nav-icon-btn" id="btn-quick-theme" title="Quick Theme Switcher">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+            </svg>
+          </button>
+          <button class="nav-icon-btn" id="btn-focus-mode" title="Toggle Distraction-Free Focus Mode">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+            </svg>
+          </button>
+          <button class="nav-icon-btn" id="btn-fullscreen" title="Toggle Fullscreen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+          </button>
+          <button class="nav-icon-btn" id="btn-shortcuts-help" title="Keyboard Shortcuts Cheat Sheet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ==================================================================
+           VIEW 1: NOTE EDITOR
+           ================================================================== -->
+      <section class="view-panel active-view" id="view-editor">
+        <!-- Note Meta & Title Banner -->
+        <div class="note-meta-banner" id="note-meta-banner">
+          <div class="note-title-section">
+            <button class="note-icon-picker-btn" id="note-icon-btn" title="Change Note Icon / Picture">
+              📝
+            </button>
+            <input type="text" class="note-title-input" id="note-title-input" placeholder="Note Title...">
+          </div>
+
+          <div class="note-controls-group">
+            <div class="save-status-pill" id="save-status-pill">
+              <div class="status-dot" id="status-dot"></div>
+              <span id="save-status-text">Saved</span>
+            </div>
+
+            <button class="btn-header-action" id="btn-note-theme" title="Change Theme for this Note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+              </svg>
+              <span>Theme</span>
+            </button>
+
+            <button class="btn-header-action" id="btn-note-favorite" title="Mark as Favorite">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              <span id="fav-btn-label">Star</span>
+            </button>
+
+            <button class="btn-header-action" id="btn-note-duplicate" title="Duplicate this Note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+
+            <button class="btn-header-action" id="btn-note-download-menu" title="Download Note (.txt, .html, .md)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download</span>
+            </button>
+
+            <button class="btn-header-action" id="btn-note-print" title="Print Note / Save as PDF">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            </button>
+
+            <button class="btn-header-action primary" id="btn-manual-save" title="Manually Save (Ctrl+S)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Multi-page / Tabs Strip -->
+        <div class="page-tabs-bar" id="page-tabs-bar">
+          <div class="page-tab-item active" data-page-idx="0">
+            <span>Page 1</span>
+          </div>
+          <button class="btn-add-page" id="btn-add-page" title="Add New Page / Tab to Note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>New Page</span>
+          </button>
+        </div>
+
+        <!-- Rich Text Formatting Toolbar -->
+        <div class="editor-toolbar" id="editor-toolbar">
+          <!-- History Actions -->
+          <div class="toolbar-group">
+            <button class="tb-btn" id="tb-undo" title="Undo (Ctrl+Z)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+            </button>
+            <button class="tb-btn" id="tb-redo" title="Redo (Ctrl+Y)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"></path></svg>
+            </button>
+            <button class="tb-btn" id="tb-clear-format" title="Clear Formatting">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Paragraph / Headings -->
+          <div class="toolbar-group">
+            <select class="tb-select" id="tb-heading-select" title="Text Style">
+              <option value="p">Paragraph</option>
+              <option value="h1">Heading 1</option>
+              <option value="h2">Heading 2</option>
+              <option value="h3">Heading 3</option>
+              <option value="blockquote">Quote Block</option>
+              <option value="pre">Code Block</option>
+            </select>
+          </div>
+
+          <!-- Font Family -->
+          <div class="toolbar-group">
+            <select class="tb-select" id="tb-font-family-select" title="Font Family">
+              <option value="'Outfit', sans-serif">Outfit (Modern)</option>
+              <option value="'Orbitron', sans-serif">Orbitron (Cyber)</option>
+              <option value="'Fira Code', monospace">Fira Code (Coding)</option>
+              <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech)</option>
+              <option value="'Playfair Display', serif">Playfair (Elegant)</option>
+              <option value="'Caveat', cursive">Caveat (Handwriting)</option>
+              <option value="'Courier New', monospace">Courier (Typewriter)</option>
+              <option value="Arial, sans-serif">Arial (Sans)</option>
+              <option value="Georgia, serif">Georgia (Serif)</option>
+            </select>
+          </div>
+
+          <!-- Font Size -->
+          <div class="toolbar-group">
+            <select class="tb-select" id="tb-font-size-select" title="Font Size">
+              <option value="1">12px (Small)</option>
+              <option value="2">14px (Compact)</option>
+              <option value="3" selected>16px (Normal)</option>
+              <option value="4">18px (Medium)</option>
+              <option value="5">22px (Large)</option>
+              <option value="6">28px (XL)</option>
+              <option value="7">36px (Huge)</option>
+            </select>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Basic Text Styles -->
+          <div class="toolbar-group">
+            <button class="tb-btn" id="tb-bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+            <button class="tb-btn" id="tb-italic" title="Italic (Ctrl+I)"><em>I</em></button>
+            <button class="tb-btn" id="tb-underline" title="Underline (Ctrl+U)"><u>U</u></button>
+            <button class="tb-btn" id="tb-strike" title="Strikethrough"><s>S</s></button>
+            <button class="tb-btn" id="tb-subscript" title="Subscript">X<sub>2</sub></button>
+            <button class="tb-btn" id="tb-superscript" title="Superscript">X<sup>2</sup></button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Color Pickers -->
+          <div class="toolbar-group">
+            <!-- Text Color -->
+            <div class="color-picker-wrapper" title="Text Color">
+              <button class="tb-btn" id="btn-text-color">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"></path><path d="M12 4l6 14"></path><path d="M8 14h8"></path><path d="M12 4L6 18"></path></svg>
+              </button>
+              <input type="color" class="color-input-hidden" id="input-text-color" value="#00f0ff">
+            </div>
+
+            <!-- Highlight Color -->
+            <div class="color-picker-wrapper" title="Highlight Color">
+              <button class="tb-btn" id="btn-highlight-color">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l-6 6v3h3l6-6"></path><path d="M22 2l-6 6"></path><path d="M15 9l3 3"></path></svg>
+              </button>
+              <input type="color" class="color-input-hidden" id="input-highlight-color" value="#ffd600">
+            </div>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Alignment -->
+          <div class="toolbar-group">
+            <button class="tb-btn" id="tb-align-left" title="Align Left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-align-center" title="Align Center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-align-right" title="Align Right">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-align-justify" title="Justify">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Lists & Checklist -->
+          <div class="toolbar-group">
+            <button class="tb-btn" id="tb-ul" title="Bullet List">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-ol" title="Numbered List">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+            </button>
+            <button class="tb-btn" id="tb-checklist" title="Insert Interactive Checklist">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </button>
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <!-- Indents, Dividers, Links & Media -->
+          <div class="toolbar-group">
+            <button class="tb-btn" id="tb-indent" title="Indent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 8 7 12 3 16"></polyline><line x1="21" y1="12" x2="11" y2="12"></line><line x1="21" y1="6" x2="11" y2="6"></line><line x1="21" y1="18" x2="11" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-outdent" title="Outdent">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 8 3 12 7 16"></polyline><line x1="21" y1="12" x2="11" y2="12"></line><line x1="21" y1="6" x2="11" y2="6"></line><line x1="21" y1="18" x2="11" y2="18"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-hr" title="Insert Divider Line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+            <button class="tb-btn" id="tb-datetime" title="Insert Timestamp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </button>
+            <button class="tb-btn" id="tb-link" title="Insert Link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+            </button>
+            <button class="tb-btn" id="tb-image" title="Insert Image from Device or URL">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            </button>
+            <button class="tb-btn" id="tb-find-replace" title="Find & Replace in Note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Find and Replace Bar -->
+        <div class="find-replace-bar" id="find-replace-bar">
+          <div class="find-input-box">
+            <span>Find:</span>
+            <input type="text" id="find-query-input" placeholder="Search in text...">
+          </div>
+          <div class="find-input-box">
+            <span>Replace:</span>
+            <input type="text" id="replace-query-input" placeholder="Replace with...">
+          </div>
+          <button class="btn-header-action" id="btn-find-next">Next</button>
+          <button class="btn-header-action" id="btn-find-prev">Prev</button>
+          <button class="btn-header-action" id="btn-replace-one">Replace</button>
+          <button class="btn-header-action" id="btn-replace-all">Replace All</button>
+          <button class="tb-btn" id="btn-close-find">✕</button>
+        </div>
+
+        <!-- Writing Area / ContentEditable Canvas -->
+        <div class="editor-scroll-canvas">
+          <div class="note-editor-content" id="note-editor-content" contenteditable="true" spellcheck="true" data-placeholder="Start typing your thoughts, notes, and tasks here...">
+          </div>
+        </div>
+
+        <!-- Editor Bottom Stats Footer -->
+        <footer class="editor-stats-footer">
+          <div class="stats-group">
+            <span class="stat-pill"><strong id="stat-words">0</strong> words</span>
+            <span class="stat-pill"><strong id="stat-chars">0</strong> characters</span>
+            <span class="stat-pill"><strong id="stat-sentences">0</strong> sentences</span>
+            <span class="stat-pill"><strong id="stat-reading-time">0 min</strong> read</span>
+          </div>
+          <div class="stats-group">
+            <span id="stat-last-modified">Last saved: Never</span>
+          </div>
+        </footer>
+      </section>
+
+      <!-- ==================================================================
+           VIEW 2: TO-DO TASK MANAGER
+           ================================================================== -->
+      <section class="view-panel" id="view-todos">
+        <div class="todos-container">
+          <!-- Statistics Cards Grid -->
+          <div class="todo-stats-grid">
+            <div class="todo-stat-card">
+              <div class="stat-card-info">
+                <span class="stat-card-label">Total Tasks</span>
+                <span class="stat-card-value" id="stat-todo-total">0</span>
+              </div>
+              <div class="stat-card-icon cyan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </div>
+            </div>
+
+            <div class="todo-stat-card">
+              <div class="stat-card-info">
+                <span class="stat-card-label">Completed</span>
+                <span class="stat-card-value" id="stat-todo-completed">0</span>
+              </div>
+              <div class="stat-card-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+            </div>
+
+            <div class="todo-stat-card">
+              <div class="stat-card-info">
+                <span class="stat-card-label">Active / Pending</span>
+                <span class="stat-card-value" id="stat-todo-active">0</span>
+              </div>
+              <div class="stat-card-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+            </div>
+
+            <div class="todo-stat-card">
+              <div class="stat-card-info">
+                <span class="stat-card-label">Overdue</span>
+                <span class="stat-card-value" id="stat-todo-overdue">0</span>
+              </div>
+              <div class="stat-card-icon pink">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overall Completion Progress -->
+          <div class="todo-progress-card">
+            <div class="progress-header">
+              <span>Task Completion Velocity</span>
+              <span id="todo-progress-percent">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="todo-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Task Creation Form -->
+          <div class="task-create-card">
+            <div class="task-create-main-row">
+              <input type="text" class="task-title-input" id="new-task-title" placeholder="Add a new task (press Enter or fill details below)...">
+              <button class="btn-new-action" id="btn-add-task-submit" style="width: auto; padding: 10px 20px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Add Task</span>
+              </button>
+            </div>
+
+            <div class="task-create-details-row">
+              <div class="task-form-control">
+                <label>Priority</label>
+                <select class="task-form-select" id="new-task-priority">
+                  <option value="low">Low (Green)</option>
+                  <option value="medium" selected>Medium (Blue)</option>
+                  <option value="high">High (Orange)</option>
+                  <option value="urgent">Urgent (Red)</option>
+                </select>
+              </div>
+
+              <div class="task-form-control">
+                <label>Category</label>
+                <select class="task-form-select" id="new-task-category">
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Project">Project</option>
+                  <option value="Ideas">Ideas</option>
+                  <option value="Study">Study</option>
+                </select>
+              </div>
+
+              <div class="task-form-control">
+                <label>Due Date</label>
+                <input type="date" class="task-form-input" id="new-task-duedate">
+              </div>
+
+              <div class="task-form-control">
+                <label>Recurrence</label>
+                <select class="task-form-select" id="new-task-recurrence">
+                  <option value="none">None</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+
+            <input type="text" class="task-form-input" id="new-task-desc" placeholder="Optional description or tags (e.g. #design #client)...">
+          </div>
+
+          <!-- Task Filters & Search Controls -->
+          <div class="task-controls-bar">
+            <div class="task-filter-pills" id="task-filter-pills">
+              <button class="filter-pill active" data-filter="all">All</button>
+              <button class="filter-pill" data-filter="active">Active</button>
+              <button class="filter-pill" data-filter="completed">Completed</button>
+              <button class="filter-pill" data-filter="today">Today</button>
+              <button class="filter-pill" data-filter="upcoming">Upcoming</button>
+              <button class="filter-pill" data-filter="urgent">Urgent / High</button>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <select class="filter-select" id="tasks-sort-select">
+                <option value="due-asc">Sort: Due Date</option>
+                <option value="priority-desc">Sort: Priority</option>
+                <option value="created-desc">Sort: Date Added</option>
+                <option value="title-asc">Sort: Title A-Z</option>
+              </select>
+              <button class="btn-header-action" id="btn-clear-completed-tasks">Clear Done</button>
+            </div>
+          </div>
+
+          <!-- Task Cards List -->
+          <div class="task-list-grid" id="tasks-list-container">
+            <!-- Dynamically populated tasks -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VIEW 3: TRASH & RECOVERY
+           ================================================================== -->
+      <section class="view-panel" id="view-trash">
+        <div class="trash-container">
+          <div class="trash-banner">
+            <div class="trash-banner-info">
+              <h3>Trash Bin</h3>
+              <p>Deleted items stay here and can be restored at any time. Permanently deleting will wipe them completely.</p>
+            </div>
+            <div class="trash-actions-row">
+              <button class="btn-header-action" id="btn-restore-all-trash">Restore All</button>
+              <button class="btn-header-action primary" id="btn-empty-trash" style="background: var(--neon-red);">Empty Trash</button>
+            </div>
+          </div>
+
+          <h4 style="font-size: 14px; color: var(--text-muted); text-transform: uppercase;">Deleted Notes</h4>
+          <div class="trash-grid" id="trash-notes-grid">
+            <!-- Dynamically populated deleted notes -->
+          </div>
+
+          <h4 style="font-size: 14px; color: var(--text-muted); text-transform: uppercase; margin-top: 16px;">Deleted Tasks</h4>
+          <div class="trash-grid" id="trash-tasks-grid">
+            <!-- Dynamically populated deleted tasks -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VIEW 4: SETTINGS PANEL
+           ================================================================== -->
+      <section class="view-panel" id="view-settings">
+        <div class="settings-container">
+          <!-- Appearance Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Visual Themes & Atmosphere</div>
+            
+            <div class="theme-swatches-grid" id="theme-swatches-grid">
+              <!-- Dynamically populated theme cards -->
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Ambient Particles</div>
+                <div class="setting-desc">Render glowing animated grid and particle dynamics in background</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-particles" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title"> Audio Feedback</div>
+                <div class="setting-desc">Synthesize subtle sci-fi UI clicks on interactions</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-audio" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Editor Preferences -->
+          <div class="settings-section">
+            <div class="settings-section-title">Editor Preferences</div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Auto-Save Timer</div>
+                <div class="setting-desc">Interval for automatic background persistence</div>
+              </div>
+              <select class="filter-select" id="setting-autosave-interval">
+                <option value="1000">1 Second (Fast)</option>
+                <option value="3000" selected>3 Seconds (Recommended)</option>
+                <option value="5000">5 Seconds</option>
+                <option value="10000">10 Seconds</option>
+                <option value="0">Manual Only (Ctrl+S)</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Spellcheck</div>
+                <div class="setting-desc">Enable native browser spellcheck in note editor</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-spellcheck" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Confirm Before Deletion</div>
+                <div class="setting-desc">Ask for confirmation before moving notes or tasks to trash</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-toggle-confirm" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Data Backup & Export Section -->
+          <div class="settings-section">
+            <div class="settings-section-title">Data Backup, Export & Storage</div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Export Full JSON Backup</div>
+                <div class="setting-desc">Download a complete structured JSON archive of all notes, pages, and tasks</div>
+              </div>
+              <button class="btn-header-action primary" id="btn-export-backup">Export JSON</button>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title">Restore from JSON Backup</div>
+                <div class="setting-desc">Import and restore notes and tasks from a previous backup file</div>
+              </div>
+              <button class="btn-header-action" id="btn-import-backup-trigger">Import Backup</button>
+              <input type="file" id="input-import-backup-file" accept=".json" style="display: none;">
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label-block">
+                <div class="setting-title" style="color: var(--neon-red);">Factory Reset / Wipe All Data</div>
+                <div class="setting-desc">Permanently erase all local notes, pages, tasks, and settings</div>
+              </div>
+              <button class="btn-header-action" id="btn-reset-all-data" style="border-color: var(--neon-red); color: var(--neon-red);">Clear All Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ====================================================================
+       MODALS & DIALOGS
+       ==================================================================== -->
+
+  <!-- Modal 1: Icon / Picture Picker -->
+  <div class="modal-backdrop" id="modal-icon-picker">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Select Note Icon / Avatar</h3>
+        <button class="modal-close-btn" data-close-modal="modal-icon-picker">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 12px; color: var(--text-dim);">Pick an icon emoji:</div>
+        <div class="emoji-picker-grid" id="emoji-picker-grid">
+          <!-- Emojis populated in JS -->
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-dim); margin-top: 10px;">Or upload custom image from device:</div>
+        <input type="file" id="input-custom-icon-file" accept="image/*" class="task-form-input">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-header-action" id="btn-remove-note-icon">Reset to Default</button>
+        <button class="btn-header-action primary" data-close-modal="modal-icon-picker">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: Insert Link Dialog -->
+  <div class="modal-backdrop" id="modal-link-dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Insert Hyperlink</h3>
+        <button class="modal-close-btn" data-close-modal="modal-link-dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="task-form-control">
+          <label>Link URL</label>
+          <input type="url" class="task-form-input" id="input-link-url" placeholder="https://example.com">
+        </div>
+        <div class="task-form-control">
+          <label>Link Text (optional)</label>
+          <input type="text" class="task-form-input" id="input-link-text" placeholder="Display text...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-header-action" data-close-modal="modal-link-dialog">Cancel</button>
+        <button class="btn-header-action primary" id="btn-insert-link-confirm">Insert Link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Insert Image Dialog -->
+  <div class="modal-backdrop" id="modal-image-dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Insert Image</h3>
+        <button class="modal-close-btn" data-close-modal="modal-image-dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="task-form-control">
+          <label>Upload Image from Device</label>
+          <input type="file" id="input-editor-img-file" accept="image/*" class="task-form-input">
+        </div>
+        <div style="text-align: center; font-size: 12px; color: var(--text-dim);">— OR —</div>
+        <div class="task-form-control">
+          <label>Image URL</label>
+          <input type="url" id="input-editor-img-url" class="task-form-input" placeholder="https://images.unsplash.com/...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-header-action" data-close-modal="modal-image-dialog">Cancel</button>
+        <button class="btn-header-action primary" id="btn-insert-img-confirm">Insert Image</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Download Format Picker -->
+  <div class="modal-backdrop" id="modal-download-dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Download Note Content</h3>
+        <button class="modal-close-btn" data-close-modal="modal-download-dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-muted);">Choose your preferred export format:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+          <button class="btn-header-action" id="btn-dl-md" style="justify-content: flex-start; padding: 12px;">
+            <strong style="color: var(--neon-cyan);">.MD</strong>&nbsp;– Markdown File (Formatted)
+          </button>
+          <button class="btn-header-action" id="btn-dl-html" style="justify-content: flex-start; padding: 12px;">
+            <strong style="color: var(--neon-pink);">.HTML</strong>&nbsp;– Web Page (Styled with Cyber Neon)
+          </button>
+          <button class="btn-header-action" id="btn-dl-txt" style="justify-content: flex-start; padding: 12px;">
+            <strong style="color: var(--neon-green);">.TXT</strong>&nbsp;– Plain Text File
+          </button>
+          <button class="btn-header-action" id="btn-dl-print" style="justify-content: flex-start; padding: 12px;">
+            <strong style="color: var(--neon-purple);">PDF / Print</strong>&nbsp;– Print Dialog (PDF Export)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Keyboard Shortcuts Reference -->
+  <div class="modal-backdrop" id="modal-shortcuts-dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Keyboard Shortcuts Matrix</h3>
+        <button class="modal-close-btn" data-close-modal="modal-shortcuts-dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="shortcuts-table">
+          <tr><td><span class="kbd-badge">Ctrl + N</span></td><td>Create new note</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + S</span></td><td>Save note / state immediately</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + F</span></td><td>Search / Find in note</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + B</span></td><td>Bold text</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + I</span></td><td>Italic text</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + U</span></td><td>Underline text</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + Z</span></td><td>Undo action</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + Y</span></td><td>Redo action</td></tr>
+          <tr><td><span class="kbd-badge">Ctrl + Shift + D</span></td><td>Open Download Menu</td></tr>
+          <tr><td><span class="kbd-badge">Escape</span></td><td>Close active modal / exit focus mode</td></tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-header-action primary" data-close-modal="modal-shortcuts-dialog">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: General Confirmation Dialog -->
+  <div class="modal-backdrop" id="modal-confirm-dialog">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirm-dialog-title">Confirm Action</h3>
+        <button class="modal-close-btn" data-close-modal="modal-confirm-dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirm-dialog-message" style="font-size: 13.5px; color: var(--text-muted);"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-header-action" id="btn-confirm-cancel">Cancel</button>
+        <button class="btn-header-action primary" id="btn-confirm-ok">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container"></div>
+
+  <!-- Vanilla JavaScript Logic -->
+  <script src="./script.js"></script>
+</body>
+</html>
